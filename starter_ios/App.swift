@@ -22,7 +22,9 @@ struct MyApp: App {
  @StateObject var flutterDependencies = FlutterDependencies()
    var body: some Scene {
      WindowGroup {
-       ContentView().environmentObject(flutterDependencies)
+       NavigationStack {
+         ContentView().environmentObject(flutterDependencies)
+       }
      }
    }
 }

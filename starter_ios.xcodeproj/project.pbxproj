@@ -12,6 +12,7 @@
 		976058A72ADE5654005078EF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 976058A62ADE5654005078EF /* ContentView.swift */; };
 		976058A92ADE5655005078EF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 976058A82ADE5655005078EF /* Assets.xcassets */; };
 		976058AC2ADE5655005078EF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 976058AB2ADE5655005078EF /* Preview Assets.xcassets */; };
+		D1FE2EE82ADEE97000D51D62 /* AddressSwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1FE2EE72ADEE97000D51D62 /* AddressSwiftUIView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		976058A82ADE5655005078EF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		976058AB2ADE5655005078EF /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		ACC8DD81886A0C8236F77D24 /* Pods_starter_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_starter_ios.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D1FE2EE72ADEE97000D51D62 /* AddressSwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressSwiftUIView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +81,7 @@
 				976058A62ADE5654005078EF /* ContentView.swift */,
 				976058A82ADE5655005078EF /* Assets.xcassets */,
 				976058AA2ADE5655005078EF /* Preview Content */,
+				D1FE2EE72ADEE97000D51D62 /* AddressSwiftUIView.swift */,
 			);
 			path = starter_ios;
 			sourceTree = "<group>";
@@ -247,6 +250,7 @@
 			files = (
 				976058A72ADE5654005078EF /* ContentView.swift in Sources */,
 				976058A52ADE5654005078EF /* App.swift in Sources */,
+				D1FE2EE82ADEE97000D51D62 /* AddressSwiftUIView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
