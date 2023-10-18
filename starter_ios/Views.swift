@@ -14,6 +14,7 @@ enum NativeScreen: String {
     case ensembleRoot = "EnsembleRootScreen"
     case profile = "ProfileScreen"
     case settings = "SettingsScreen"
+    case device = "DeviceDetail"
 }
 
 class NavigationModel: ObservableObject {
@@ -21,6 +22,26 @@ class NavigationModel: ObservableObject {
     @Published var screenName: NativeScreen? = nil
     @Published var inputs: [String: Any]?
     @Published var options: [String: Any]?
+}
+
+struct DeviceDetail: View {
+    @EnvironmentObject var navigationModel: NavigationModel
+    
+    var parsedData: [String: Any] {
+        if let dataDict = navigationModel.inputs?["data"] as? [String: Any] {
+            return dataDict
+        }
+        return [:]
+    }
+    
+    var body: some View {
+        VStack {
+            Text("This is SwiftUI").padding(20)
+            Text(parsedData["name"] as? String ?? "").bold()
+            Text("$\(parsedData["price"] as? String ?? "")")
+            BackButton()
+        }
+    }
 }
 
 struct ProfileView: View {
@@ -57,7 +78,7 @@ struct BackButton: View {
             // Adding Ensemble View to NavigationStack
             navigationModel.presentedViews.removeLast()
         }) {
-            Text("Go Back")
+            Text("Go Back to Ensemble")
                 .font(.headline)
                 .padding()
                 .background(Color.blue)

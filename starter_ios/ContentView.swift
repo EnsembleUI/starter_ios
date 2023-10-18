@@ -27,18 +27,32 @@ struct ContentView: View {
     var body: some View {
         NavigationStack(path: $navigationModel.presentedViews) {
             VStack(spacing: 30) {
-                Text("This is a SwiftUI screen")
+                
+                Text("This is SwiftUI")
+                
+        
                 
                 Button(action: {
                     showEnsemble()
                 }) {
-                    Text("Open Ensemble App")
+                    Text("Go to Ensemble")
                         .font(.headline)
                         .padding()
                         .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
+                
+//                Button(action: {
+//                    showEnsemble()
+//                }) {
+//                    Text("Explore services")
+//                        .font(.headline)
+//                        .padding()
+//                        .background(Color.blue)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(10)
+//                }
             }
             .alert(message, isPresented: $showAlert) {
                 Button("OK", role: .cancel) { }
@@ -53,6 +67,8 @@ struct ContentView: View {
                         .environmentObject(navigationModel)
                 case .settings:
                     SettingsView()
+                case .device:
+                    DeviceDetail()
                 }
             }
         }
