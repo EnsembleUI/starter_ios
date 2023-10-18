@@ -9,22 +9,22 @@ import SwiftUI
 import Flutter
 import FlutterPluginRegistrant
 
-class FlutterDependencies: ObservableObject {
- let flutterEngine = FlutterEngine(name: "Ensemble")
- init() {
-   flutterEngine.run()
-   GeneratedPluginRegistrant.register(with: self.flutterEngine);
- }
-}
-
 @main
 struct MyApp: App {
- @StateObject var flutterDependencies = FlutterDependencies()
-   var body: some Scene {
-     WindowGroup {
-       NavigationStack {
-         ContentView().environmentObject(flutterDependencies)
-       }
-     }
-   }
+    @StateObject var ensembleApp = EnsembleApp()
+    var body: some Scene {
+        WindowGroup {
+            NavigationStack {
+                ContentView().environmentObject(ensembleApp)
+            }
+        }
+    }
+}
+
+class EnsembleApp: ObservableObject {
+    let flutterEngine = FlutterEngine(name: "Ensemble")
+    init() {
+        flutterEngine.run()
+        GeneratedPluginRegistrant.register(with: self.flutterEngine);
+    }
 }
