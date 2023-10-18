@@ -45,11 +45,9 @@ struct ContentView: View {
             }
             .navigationDestination(for: NativeScreen.self) { screen in
                 switch screen {
-                case .ensembleHome1:
+                case .ensembleRoot:
                     EnsembleRootView()
                         .environmentObject(navigationModel)
-                case .ensembleHome2:
-                    Text("Ensemble Home 2")
                 case .profile:
                     ProfileView()
                         .environmentObject(navigationModel)
@@ -68,18 +66,22 @@ struct ContentView: View {
         ensembleController.modalPresentationStyle = .fullScreen
         ensembleController.modalTransitionStyle = .coverVertical
         
+        let ensembleMethodChannel = FlutterMethodChannel(name: ContentView.channelName, binaryMessenger: ensembleController.binaryMessenger)
+        
         // listen for data from Ensemble
-        registerEnsembleListeners(ensembleController: ensembleController)
+        registerEnsembleListeners(ensembleController: ensembleController, ensembleMethodChannel: ensembleMethodChannel)
+        
+        // send data to ensemble
+        sendDataToEnsemble(ensembleMethodChannel: ensembleMethodChannel)
         
         // send environment variables
-        sendEnvVariables(ensembleController: ensembleController);
+        sendEnvVariables(ensembleMethodChannel: ensembleMethodChannel)
         
         // Adding Ensemble View to NavigationStack
-        navigationModel.presentedViews.append(.ensembleHome1)
+        navigationModel.presentedViews.append(.ensembleRoot)
   }
     
-    func registerEnsembleListeners(ensembleController: FlutterViewController) {
-        let ensembleMethodChannel = FlutterMethodChannel(name: ContentView.channelName, binaryMessenger: ensembleController.binaryMessenger)
+    func registerEnsembleListeners(ensembleController: FlutterViewController, ensembleMethodChannel: FlutterMethodChannel) {
         // Receive data from Ensemble
         ensembleMethodChannel.setMethodCallHandler({ (call: FlutterMethodCall, result: FlutterResult) -> Void in
 
@@ -101,6 +103,9 @@ struct ContentView: View {
                 ensembleController.dismiss(animated: true, completion: nil)
                 if let dictonary = call.arguments as? NSDictionary {
                     print("Data From Ensemble: \(String(describing: dictonary))")
+                    
+                    // Pop the ensemble view and show alert dialog
+                    self.navigationModel.presentedViews = []
                     self.message = dictonary.description
                     showAlert = true
                 } else {
@@ -113,9 +118,15 @@ struct ContentView: View {
         })
     }
     
-    func sendEnvVariables(ensembleController: FlutterViewController) {
-        let ensembleMethodChannel = FlutterMethodChannel(name: ContentView.channelName, binaryMessenger: ensembleController.binaryMessenger)
-        
+    func sendDataToEnsemble(ensembleMethodChannel: FlutterMethodChannel) {
+        let dict = [
+            "name": "EnsembleUI",
+            "desc": "Build apps 20x faster"
+        ]
+        ensembleMethodChannel.invokeMethod("fromHostToEnsemble", arguments: dict)
+    }
+    
+    func sendEnvVariables(ensembleMethodChannel: FlutterMethodChannel) {
         let dict = [
             "token": "abcdef",
             "name": "Peter Parker"
