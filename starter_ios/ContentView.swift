@@ -8,32 +8,31 @@
 import SwiftUI
 import UIKit
 import Flutter
+import FlutterPluginRegistrant
 
 
 struct ContentView: View {
     @EnvironmentObject var ensembleApp: EnsembleApp
-    @ObservedObject var navigationModel = NavigationModel()
+    @EnvironmentObject var navigationModel: NavigationModel
     
     @State private var showAlert: Bool = false
     @State private var message: String = ""
-
+    
+    static private let channelName = "com.ensembleui.host.platform"
+    
+    // MARK: Platform Methods
+    static private let navigateExternalScreen = "navigateExternalScreen"
+    static private let fromEnsembleToHost = "fromEnsembleToHost"
+    
     var body: some View {
-        if let screen = navigationModel.screenName {
-            switch screen {
-            case .profile:
-                ProfileView(navigationModel: navigationModel)
-            case .settings:
-                SettingsView(navigationModel: navigationModel)
-            }
-        } else {
-            
+        NavigationStack(path: $navigationModel.presentedViews) {
             VStack(spacing: 30) {
-                
                 Text("This is a SwiftUI screen")
+                
                 Button(action: {
                     showEnsemble()
                 }) {
-                    Text("Go To Ensemble")
+                    Text("Open Ensemble App")
                         .font(.headline)
                         .padding()
                         .background(Color.blue)
@@ -44,17 +43,24 @@ struct ContentView: View {
             .alert(message, isPresented: $showAlert) {
                 Button("OK", role: .cancel) { }
             }
+            .navigationDestination(for: NativeScreen.self) { screen in
+                switch screen {
+                case .ensembleHome1:
+                    EnsembleRootView()
+                        .environmentObject(navigationModel)
+                case .ensembleHome2:
+                    Text("Ensemble Home 2")
+                case .profile:
+                    ProfileView()
+                        .environmentObject(navigationModel)
+                case .settings:
+                    SettingsView()
+                }
+            }
         }
     }
 
     func showEnsemble() {
-        guard
-          let windowScene = UIApplication.shared.connectedScenes
-            .first(where: { $0.activationState == .foregroundActive && $0 is UIWindowScene }) as? UIWindowScene,
-          let window = windowScene.windows.first(where: \.isKeyWindow),
-          let rootViewController = window.rootViewController
-        else { return }
-        
         let ensembleController = FlutterViewController(
           engine: ensembleApp.flutterEngine,
           nibName: nil,
@@ -68,42 +74,34 @@ struct ContentView: View {
         // send environment variables
         sendEnvVariables(ensembleController: ensembleController);
         
-        // show Ensemble UI
-        rootViewController.present(ensembleController, animated: true)
-            
-    //    if let navigationController = rootViewController as? UINavigationController {
-    //        navigationController.pushViewController(flutterViewController, animated: true)
-    //    }
-            
+        // Adding Ensemble View to NavigationStack
+        navigationModel.presentedViews.append(.ensembleHome1)
   }
     
     func registerEnsembleListeners(ensembleController: FlutterViewController) {
-        let ensembleMethodChannel = FlutterMethodChannel(name: "com.ensembleui.host.platform", binaryMessenger: ensembleController.binaryMessenger)
+        let ensembleMethodChannel = FlutterMethodChannel(name: ContentView.channelName, binaryMessenger: ensembleController.binaryMessenger)
         // Receive data from Ensemble
         ensembleMethodChannel.setMethodCallHandler({ (call: FlutterMethodCall, result: FlutterResult) -> Void in
 
-            if (call.method == "navigateExternalScreen") {
+            if (call.method == ContentView.navigateExternalScreen) {
                 let arguments = call.arguments as? [String: Any]
-                let screenName = arguments?["name"] as? String
-                if (screenName != nil) {
+                if let screenName = arguments?["name"] as? String {
                     DispatchQueue.main.async {
                         self.navigationModel.inputs = arguments?["inputs"] as? [String: Any]
                         self.navigationModel.options = arguments?["options"] as? [String: Any]
-                        self.navigationModel.screenName = NativeScreen(rawValue: screenName!)
-                        ensembleController.dismiss(animated: true)
+                        self.navigationModel.screenName = NativeScreen(rawValue: screenName)
+                        if let viewToPresent = NativeScreen(rawValue: screenName) {
+                            // Adding View to NavigationStack
+                            self.navigationModel.presentedViews.append(viewToPresent)
+                        }
                     }
                 }
                 result(nil)
-                
-            } else if (call.method == "fromEnsembleToHost") {
-                
+            } else if (call.method == ContentView.fromEnsembleToHost) {
                 ensembleController.dismiss(animated: true, completion: nil)
-                
-                let dictonary: NSDictionary? = call.arguments as? NSDictionary
-                
-                if (dictonary != nil){
+                if let dictonary = call.arguments as? NSDictionary {
                     print("Data From Ensemble: \(String(describing: dictonary))")
-                    self.message = dictonary!.description
+                    self.message = dictonary.description
                     showAlert = true
                 } else {
                     print("Failed to get data from ensemble")
@@ -116,7 +114,7 @@ struct ContentView: View {
     }
     
     func sendEnvVariables(ensembleController: FlutterViewController) {
-        let ensembleMethodChannel = FlutterMethodChannel(name: "com.ensembleui.host.platform", binaryMessenger: ensembleController.binaryMessenger)
+        let ensembleMethodChannel = FlutterMethodChannel(name: ContentView.channelName, binaryMessenger: ensembleController.binaryMessenger)
         
         let dict = [
             "token": "abcdef",
@@ -125,6 +123,19 @@ struct ContentView: View {
         ensembleMethodChannel.invokeMethod("updateEnvOverrides", arguments: dict)
     }
 }
+
+struct EnsembleRootView: UIViewControllerRepresentable {
+    @EnvironmentObject var ensembleApp: EnsembleApp
+
+     func makeUIViewController(context: Context) -> FlutterViewController {
+         return FlutterViewController(engine: ensembleApp.flutterEngine, nibName: nil, bundle: nil)
+     }
+
+     func updateUIViewController(_ flutterViewController: FlutterViewController, context: Context) {
+         // Can update the FlutterViewController here if needed.
+         flutterViewController.navigationItem.title = "Ensemble View"
+     }
+ }
 
 #Preview {
     ContentView()
