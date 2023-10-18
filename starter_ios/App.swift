@@ -12,11 +12,13 @@ import FlutterPluginRegistrant
 @main
 struct MyApp: App {
     @StateObject var ensembleApp = EnsembleApp()
+    @StateObject var navigationModel = NavigationModel()
+    
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                ContentView().environmentObject(ensembleApp)
-            }
+            ContentView()
+                .environmentObject(ensembleApp)
+                .environmentObject(navigationModel)
         }
     }
 }
